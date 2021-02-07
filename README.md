@@ -22,3 +22,31 @@ optional arguments:
 ```
 
 Don’t forget to mark the script as executable. By default, the script will print to STDOUT but you can redirect it to Prowl by providing a Prowl API key. Nothing will be shown if the gas price is larger than the target value when the `--only-if-below` argument is used.
+
+## Examples
+
+Simple.
+
+```
+$ ./gasprice
+Average gas price is 277 gwei (~ 7.58 EUR)
+```
+
+In USD.
+
+```
+$ ./gasprice --currency=USD
+Average gas price is 274 gwei (~ 9.01 USD)
+```
+
+Only if gas price is < 100 gwei (no output since the current gas price is 274 gwei).
+
+```
+$ ./gasprice --only-if-below=100
+```
+
+With Prowl (no output since the output is redirected to Prowl).
+
+```
+$ ./gasprice --only-if-below=500 --prowl-ley=ABC123
+```
