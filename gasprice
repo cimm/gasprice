@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+
+import argparse
+import decimal
+import os
+import requests
+import sys
+
+desc = """Gets the average Etherium gas price from the ETH Gas Station API and calculates
+what a standard transaction would cost in fiat using Cryptonator’s API."""
+
+CRYPTONATOR_TICKER_URL = "https://api.cryptonator.com/api/ticker/eth-"
+ETHGASSTATION_GAS_URL = "https://www.ethgasstation.info/json/ethgasAPI.json"
+PROWL_URL = "https://api.prowlapp.com/publicapi/add"
+
+GAS_PER_TRANSACTION = 21000
+GWEI_PER_ETH = 1000000000
+
+SCRIPT_NAME = os.path.basename(__file__)
+HEADERS = { "User-Agent": SCRIPT_NAME }
+
+def average_gas_price():
+    response = requests.get(ETHGASSTATION_GAS_URL, headers = HEADERS)
+    data = response.json()
+    return(data["average"] / 10) # API gwei value 10x too large
+
+def gwei_to_fiat(price, currency):
+    response = requests.get(CRYPTONATOR_TICKER_URL + currency, headers = HEADERS)
+    data = response.json()
+    eth_price_in_fiat = decimal.Decimal(data["ticker"]["price"])
+    return(decimal.Decimal(price / GWEI_PER_ETH) * eth_price_in_fiat)
+
+def gwei_per_transaction(price):
+    return(price * GAS_PER_TRANSACTION)
+
+def formatted_result(gas_price, currency):
+    fiat_price = gwei_to_fiat(gwei_per_transaction(gas_price), currency)
+    return(f"Average gas price is {round(gas_price)} gwei (~ {round(fiat_price, 2)} {currency})")
+
+def notify_prowl(key, message):
+    data = { "apikey": key,
+             "application": SCRIPT_NAME,
+             "description": message }
+    requests.post(PROWL_URL, data = data)
+
+def main():
+    parser = argparse.ArgumentParser(description=desc,
+                                     formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("--currency", choices=["USD", "EUR"], default="EUR", help="fiat currency to convert to")
+    parser.add_argument("--only-if-below", type=float, help="only trigger if gas price is below set value (in gwei)")
+    parser.add_argument("--prowl-key", help="sends a push notification if a Prowl API key is given")
+    args = parser.parse_args()
+
+    gas_price = average_gas_price()
+    if args.only_if_below is not None and gas_price > args.only_if_below:
+        sys.exit() # gas price too high, stop
+
+    message = formatted_result(gas_price, args.currency)
+    if args.prowl_key is None:
+        print(message)
+    else:
+        notify_prowl(args.prowl_key, message)
+
+if __name__ == "__main__":
+    main()
