@@ -48,5 +48,5 @@ $ ./gasprice --only-if-below=100
 With Prowl (no output since the output is redirected to Prowl).
 
 ```
-$ ./gasprice --only-if-below=500 --prowl-ley=ABC123
+$ ./gasprice --only-if-below=500 --prowl-key=ABC123
 ```
