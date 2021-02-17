@@ -1,0 +1,68 @@
+const SCRIPT_NAME = "GasPrice"
+const PRIMARY_COLOR = "#2A3F54"
+
+const CRYPTONATOR_TICKER_URL = "https://api.cryptonator.com/api/ticker/eth-"
+const ETHGASSTATION_GAS_URL = "https://www.ethgasstation.info/json/ethgasAPI.json"
+
+const GAS_PER_TRANSACTION = 21000
+const GWEI_PER_ETH = 1000000000
+
+const HEADERS = { "User-Agent": SCRIPT_NAME }
+
+async function averageGasPrice() {
+  let req = new Request(ETHGASSTATION_GAS_URL)
+  req.headers = HEADERS // not necessary but be a nice netizen
+  const data = await req.loadJSON()
+  return(data.average / 10) // api gwei value 10x too large
+}
+
+async function gweiToFiat(price, currency) {
+  let req = new Request(CRYPTONATOR_TICKER_URL + currency)
+  req.headers = HEADERS
+  const data = await req.loadJSON()
+  return(price / GWEI_PER_ETH * data.ticker.price)
+}
+
+function gweiPerTransaction(price) {
+  return(price * GAS_PER_TRANSACTION)
+}
+
+async function formattedMessage(gasPrice, currency) {
+  const fiatPrice = await gweiToFiat(gweiPerTransaction(gasPrice), currency)
+  const roundedFiatPrice = Math.round(fiatPrice * 100) / 100
+  return(`Average price is ${gasPrice} gwei (~ ${roundedFiatPrice} ${currency})`)
+}
+
+function createWidget(pretitle, title, bgColor) {
+  let widget = new ListWidget()
+  widget.backgroundColor = new Color(bgColor)
+
+  let preTxt = widget.addText(pretitle)
+  preTxt.textColor = Color.white()
+  preTxt.textOpacity = 0.8
+  preTxt.textSize = 16
+
+  let titleTxt = widget.addText(title)
+  titleTxt.textColor = Color.white()
+  titleTxt.textSize = 23
+
+  return widget
+}
+
+const currency = (args.widgetParameter !== null) ? args.widgetParameter : "EUR"
+const gasPrice = await averageGasPrice()
+const message = await formattedMessage(gasPrice, currency)
+
+if (config.runsInWidget) {
+  const widget = createWidget(SCRIPT_NAME, message, PRIMARY_COLOR)
+  Script.setWidget(widget)
+} else if (config.runsWithSiri){
+  Speech.speak(message)
+} else {
+  let alert = new Alert()
+  alert.title = SCRIPT_NAME
+  alert.message = message
+  alert.present()
+}
+
+Script.complete()

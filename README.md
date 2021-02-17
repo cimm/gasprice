@@ -1,4 +1,8 @@
-# GasPrice
+# GasPrice Scriptable Widget
+
+A widget for the iOS Scriptable app to show the average gas price at a glance.
+
+# GasPrice CLI
 
 Small CLI script that calculates what a standard ETH transaction would cost at the moment, similar to what can be found on [Etherscan](https://etherscan.io/gastracker). It can send a [Prowl](https://www.prowlapp.com) push notification if the price is below a certain threshold, intended to run as a cronjob, for example.
 
