@@ -1,12 +1,24 @@
-# GasPrice Scriptable Widget
+# GasPrice
 
-A widget for the iOS Scriptable app to show the average gas price at a glance.
+GasPrice is a collection of two little scripts to quickly show what a standard ETH transaction would cost at the moment, similar to what can be found on [Etherscan](https://etherscan.io/gastracker): a Python command line script and [Scriptable](https://scriptable.app/) script to be used as iOS widget.
 
-# GasPrice CLI
+They use the [ETH Gas Station](https://www.ethgasstation.info) API for the average gas price and the [Cryptonator](https://www.cryptonator.com) API to convert the gas price to fiat.
 
-Small CLI script that calculates what a standard ETH transaction would cost at the moment, similar to what can be found on [Etherscan](https://etherscan.io/gastracker). It can send a [Prowl](https://www.prowlapp.com) push notification if the price is below a certain threshold, intended to run as a cronjob, for example.
+# Scriptable Widget
 
-It uses the [ETH Gas Station](https://www.ethgasstation.info) API for the average gas price and the [Cryptonator](https://www.cryptonator.com) API to convert the gas price to fiat.
+The widget version of the script, to run as a Scriptable script and used as iOS widget or Siri answer. Change the “parameter” in Scriptable to `USD` to change the fiat currency, it will convert to `EUR` by default.
+
+## Usage
+
+Copy the [gasprice.scriptable](gasprice.scriptable) JavaScript code to a new script in the Scriptable iOS app. Now add the widget to the Home Screen.
+
+## Example
+
+![Scriptable iOS widget](widget.png)
+
+# CLI Script
+
+The Python version, to run on the command line. This script can also send a [Prowl](https://www.prowlapp.com) push notification if the price is below a certain threshold, intended to run as a cronjob, for example.
 
 ## Usage
 
