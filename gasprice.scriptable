@@ -13,14 +13,22 @@ async function averageGasPrice() {
   let req = new Request(ETHGASSTATION_GAS_URL)
   req.headers = HEADERS // not necessary but be a nice netizen
   const data = await req.loadJSON()
-  return(data.average / 10) // API gwei value 10x too large
+  if (req.response.statusCode === 200) {
+    return(data.average / 10) // API gwei value 10x too large
+  } else {
+    return(0)
+  }
 }
 
 async function gweiToFiat(price, currency) {
   let req = new Request(CRYPTONATOR_TICKER_URL + currency)
   req.headers = HEADERS
   const data = await req.loadJSON()
-  return(price / GWEI_PER_ETH * data.ticker.price)
+  if (req.response.statusCode === 200 && data.success === true) {
+    return(price / GWEI_PER_ETH * data.ticker.price)
+  } else {
+    return(0)
+  }
 }
 
 function gweiPerTransaction(price) {
