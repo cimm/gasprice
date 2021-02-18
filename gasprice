@@ -35,7 +35,7 @@ def gwei_per_transaction(price):
 
 def formatted_result(gas_price, currency):
     fiat_price = gwei_to_fiat(gwei_per_transaction(gas_price), currency)
-    return(f"Average gas price is {round(gas_price)} gwei (~ {round(fiat_price, 2)} {currency})")
+    return(f"Average transaction gas price is {round(gas_price)} gwei (≈ {round(fiat_price, 2)} {currency})")
 
 def notify_prowl(key, message):
     data = { "apikey": key,
